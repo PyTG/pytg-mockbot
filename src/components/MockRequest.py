@@ -13,16 +13,18 @@ class MockRequest(Request):
 
         self.logger = logging.getLogger(__name__)
 
-        pass
+        self._con_pool_size = 1
 
-    def add_mock_response(self, method, url, response):
+    def add_mock_response(self, method, endpoint, response, domain="mock.bot/mock:token"):
         method = method.lower()
 
         if method not in self.response_map.keys():
             self.logger.warning("Unable to register mock response ({}, {}, {}), unknown method {}".format(method))
             return
 
-        self.response_map[method][url] = response
+        self.response_map[method]["{}/{}".format(domain, endpoint)] = response
+
+        print(self.response_map)
 
     def get(self, url, timeout=None):
         try:
@@ -35,29 +37,25 @@ class MockRequest(Request):
             return None
 
     def post(self, url, data, timeout=None):
+        print("Post with url {} and data {}".format(url, data))
+
         try:
             # Retrieve possible data dictionary for the given URL 
             data_dict = self.response_map["post"][url]
+        except KeyError:
+            self.logger.warning("Unknown POST mock response for url {}".format(url))
+            return None
 
+        try:
+            serialized_data = str(data)
             # Look for the right data (if present)
             for key in data_dict:
-                if key == data:
+                if key == serialized_data:
                     return data_dict[key]
 
             # If not, return null
-            self.logger.warning("Unknown POST mock response data {} with url {} ".format(url, data))
-            return None
-        except KeyError:
-            self.logger.warning("Unknown POST mock response for url {}".format(url, data))
+            self.logger.warning("Unknown POST mock response data {} with url {} ".format(data, url))
             return None
         except Exception as e:
             self.logger.error("Unknown exception on GET request with url {} and data {} ({})".format(url, data, e))
             return None
-
-    # def _request_wrapper(self, *args, **kwargs):
-    #     data = {}
-
-    #     return data
-
-    # def _parse(self, json_data):
-    #     return json_data
