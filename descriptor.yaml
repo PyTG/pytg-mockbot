@@ -1,2 +1,3 @@
 module_name: mockbot
+development: true
 source_only: true

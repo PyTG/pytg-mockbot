@@ -1,6 +1,8 @@
 import logging
 
-from modules.mockbot.MockBotManager import MockBotManager
+from modules.pytg.development import add_reroute_rule
+
+from .MockBotManager import MockBotManager
 
 def initialize():
     logging.info("Initializing mockbot module...")
@@ -15,8 +17,11 @@ def load_manager():
 
 def main():
     # Start polling
-    load_manager().updater.start_polling()
     logging.info("Mock bot polling.")
+
+    manager = load_manager()
+
+    manager.start()
 
 def depends_on():
     return ["config"]
