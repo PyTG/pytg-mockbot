@@ -56,10 +56,7 @@ class MockBotManager(Manager):
         self.updater.start_polling()
 
     def join(self):
-        update_queue = self.updater.update_queue
-
-        while update_queue.qsize() != 0:
-            time.sleep(0.1)
+        self.updater.update_queue.join()
 
     def stop(self):
         self.__logger.info("Stopping MockBot...")
