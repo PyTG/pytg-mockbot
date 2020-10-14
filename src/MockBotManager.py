@@ -62,3 +62,6 @@ class MockBotManager(Manager):
         self.__logger.info("Stopping MockBot...")
 
         self.updater.stop()
+
+    def safe_request(self, callback, max_tries=20, timeout_sleep=5.0):
+        return callback()
